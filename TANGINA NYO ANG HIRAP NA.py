@@ -4,7 +4,7 @@ from gensim.summarization import summarize
 import numpy as np
 
 # Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path based on your installation
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\LENOVO-15IMH05\AppData\Local\Programs\Tesseract-OCR"  # Update this path based on your installation
 
 def capture_image():
     # Initialize the camera

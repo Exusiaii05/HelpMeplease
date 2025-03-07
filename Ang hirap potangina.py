@@ -1,18 +1,22 @@
 import cv2
 import pytesseract
 import requests
-from gensim.summarization import summarize
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer
 import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 
 # Set the path to the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'/usr/local/bin/tesseract'  # Update this path based on your installation
+pytesseract.pytesseract.tesseract_cmd = r'c:\Users\LENOVO-15IMH05\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+print(pytesseract.get_tesseract_version())
 
 API_ENDPOINT = "https://your-api-endpoint.com/summarize"  # Update this with your actual API endpoint
 
 class TextScannerApp(tk.Tk):
+    
     def __init__(self):
         super().__init__()
         self.title("Text Scanner and Summarizer")
@@ -37,6 +41,8 @@ class TextScannerApp(tk.Tk):
         self.cap = cv2.VideoCapture(0)
         self.update_camera()
 
+
+    
     def update_camera(self):
         ret, frame = self.cap.read()
         if ret:
@@ -49,16 +55,22 @@ class TextScannerApp(tk.Tk):
         self.after(10, self.update_camera)
 
     def capture_image(self):
-        if hasattr(self, 'current_frame'):
-            gray = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
-            text = pytesseract.image_to_string(gray)
-            self.recognized_text.delete(1.0, tk.END)
-            self.recognized_text.insert(tk.END, text)
-            summary = self.get_summary_from_api(text)
-            self.summary_text.delete(1.0, tk.END)
-            self.summary_text.insert(tk.END, summary)
-        else:
-            messagebox.showerror("Error", "Failed to capture image from camera.")
+     if hasattr(self, 'current_frame'):
+        gray = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)  # Reduce noise
+        gray = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)  # Improve contrast
+
+        custom_config = r'--oem 3 --psm 6' 
+
+        text = pytesseract.image_to_string(gray, config=custom_config)
+        self.recognized_text.delete(1.0, tk.END)
+        self.recognized_text.insert(tk.END, text)
+
+        summary = self.summarize_text(text)
+        self.summary_text.delete(1.0, tk.END)
+        self.summary_text.insert(tk.END, summary)
+     else:
+        messagebox.showerror("Error", "Failed to capture image from camera.")
 
     def get_summary_from_api(self, text):
         try:
@@ -72,6 +84,16 @@ class TextScannerApp(tk.Tk):
     def on_closing(self):
         self.cap.release()
         self.destroy()
+
+    def summarize_text(self, text):  
+        from sumy.parsers.plaintext import PlaintextParser
+        from sumy.nlp.tokenizers import Tokenizer
+        from sumy.summarizers.lsa import LsaSummarizer
+
+        parser = PlaintextParser.from_string(text, Tokenizer("english"))
+        summarizer = LsaSummarizer()
+        summary = summarizer(parser.document, 3) 
+        return " ".join(str(sentence) for sentence in summary)
 
 if __name__ == "__main__":
     app = TextScannerApp()
