@@ -14,6 +14,8 @@ def convert_length(value, from_unit, to_unit):
         'yard': 0.9144,
         'foot': 0.3048,
         'inch': 0.0254
+        'Pound': 2.205
+        'kilogram': 1
     }
     if from_unit not in units or to_unit not in units:
         raise ValueError('Invalid unit')
