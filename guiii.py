@@ -37,7 +37,7 @@ def main():
     root.title('Basic Unit Converter')
     root.geometry('350x200')
 
-    units = ['meter', 'kilometer', 'centimeter', 'millimeter', 'mile', 'yard', 'foot', 'inch']
+    units = ['meter', 'kilometer', 'centimeter', 'millimeter', 'mile', 'yard', 'foot', 'inch' , 'pound' , 'kilogram']
 
     tk.Label(root, text='Value:').grid(row=0, column=0, padx=10, pady=10, sticky='e')
     global entry_value
